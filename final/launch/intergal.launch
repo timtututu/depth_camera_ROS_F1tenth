@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!-- test test test  test-->
+
+
+<launch>
+  
+  <!-- car control. -->
+    <include file="$(find racecar)/launch/teleop.launch">
+    </include>
+
+  <!-- depth_to laser. -->
+
+    <include file="$(find depthimage_to_laserscan)/launch/launchfile_sample.launch">
+    </include>
+
+  <!-- use map_server -->
+
+    <arg name="map_file" default="$(find ackermann_vehicle_gazebo)/map/white.yaml"/>
+    <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)">
+    </node>
+
+  <!-- VINs-fusion -->
+  
+    <!-- <arg name="VINs_path" default="/home/nvidia/racecar_ws/src/VINS-Fusion/config/realsense_d455i/realsense_stereo_imu_config.yaml"/>
+    <node name="vins_node" pkg="vins" type="vins_node" output="screen" args="/home/nvidia/racecar_ws/src/VINS-Fusion/config/realsense_d455i/realsense_stereo_imu_config.yaml">
+    </node> -->
+
+  
+  <!--amcl-->
+  
+    <include file="$(find ackermann_vehicle_gazebo)/launch/amcl.launch" />
+
+  <!--robot_pose_ekf-->
+
+    <!-- <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf" output="screen">
+      <param name="output_frame" value="odom"/>
+      <param name="base_footprint_frame" value="base_footprint"/>
+      <param name="freq" value="30.0"/>
+      <param name="sensor_timeout" value="2.0"/>
+      <param name="odom_used" value="true"/>
+      <param name="imu_used" value="false"/>
+      <param name="vo_used" value="false"/>
+      <param name="orientation" value="false"/>
+      <remap from="imu_data" to="/camera/imu" />
+      <remap from="odom"    to="/vesc/odom"/>
+    </node> -->
+ 
+  <!--tf_transform-->
+  
+    <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_camera" args="0.285 0.0 0.127 0.0 0.0 0.0 1.0 /base_link /camera_link" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="base_footprint_to_base_link" args="0.0 0.0 0.0   0.0 0.0 0.0 1.0  /base_footprint /base_link" />
+    <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_odom" args="0.0 0.0 0.0 0.0 0.0 0.0 /map /odom" />
+    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="depth_to_laser" args="0.0 0.0 0.0 0.0 0.0 0.0 /camera_depth_frame /laser " /> -->
+    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="odom_to_odom_combine" args="0.0 0.0 0.0 0.0 0.0 0.0 /map /odom_combine" /> -->
+    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="odom_to_base_footprint" args="0.0 0.0 0.0 0.0 0.0 0.0 /odom_combine /base_footprint" /> -->
+    <!-- <node pkg="tf2_ros" type="static_transform_publisher" name="camera_link_to_depth" args="0.0 0.0 0.0 0.0 0.0 0.0 /cmaera_link /camera_depth_frame" /> -->
+    <!-- <node pkg="tf" type="static_transform_publisher" name="world_to_map" args="0 0 0 0 0 0 world map 100" /> -->
+    <!-- <node name="pub_odom" pkg="final" type="odom_pub.py" output="screen"/> -->
+    <!-- <node name="odom_to_basefootprint" pkg="final" type="odom_to_baselink.py" output="screen"/> -->
+    
+    <node name="odom_to_basefootprint" pkg="final" type="odom_base_footprint.py" output="screen"/>
+  
+  <!--use move base-->
+  
+    <include file="$(find ackermann_vehicle_gazebo)/launch/teb_local_planner_refer.launch">
+    </include>
+
+  <!--cmd_vel to vesc-->
+
+    <!-- <node name="cmd_vel_to_ackermann_drive" pkg="final" type="cmd_vel_to_ackermann.py" output="screen"/> -->
+
+  <!--pub_goal-->
+
+    <node name="pub_goal" pkg="pub_goal_k" type="pub_goal_k" output="screen">
+    </node>
+
+  <!--rviz-->
+
+    <!-- <arg name="rviz" default="~/racecar/src/final/rviz/summer_vins_test.rviz"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz)" respawn="false" output="screen"/> -->
+
+</launch>
