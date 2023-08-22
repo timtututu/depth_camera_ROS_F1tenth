@@ -1,0 +1,49 @@
+import rospy
+from nav_msgs.msg import Odometry
+from actionlib_msgs.msg import GoalID
+from geometry_msgs.msg import PoseStamped
+from move_base_msgs.msg import MoveBaseActionGoal
+from geometry_msgs.msg import Pose, Twist, Transform, TransformStamped
+from gazebo_msgs.msg import LinkStates
+from std_msgs.msg import Header
+import numpy as np
+import math
+import tf2_ros
+times=0
+
+
+def callback(pos_now):
+        #x-direction
+        goal=PoseStamped()
+        #pos_now=Odometry()
+        if times==0:
+             goal.header.frame_id='first'
+             goal.pose.position.x=5
+             goal.pose.position.y=0
+             goal.pose.position.z=0
+             goal.pose.orientation.z=0
+             goal.pose.orientation.w=0
+             goal.pose.orientation.y=0
+             goal.pose.orientation.z=0
+             rospy.loginfo('ininin')
+        # else:
+        #     a=pos_now.pose.pose.position.x
+
+        upd_pos_pub.publish(goal)
+
+
+
+
+
+def pub_new_goal(): 
+        
+    global now_pos_sub,upd_pos_pub,times
+    rospy.init_node('pub_goal')
+    now_pos_sub = rospy.Subscriber('/odom', Odometry, callback)
+    upd_pos_pub=rospy.Publisher('/move_base_simple/goal',PoseStamped,queue_size=1)
+    rospy.spin()
+        
+
+# Start the node
+if __name__ == '__main__':
+    pub_new_goal()

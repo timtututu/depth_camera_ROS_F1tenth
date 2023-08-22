@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<!-- test test test  test-->
+
+
+<launch>
+  <arg name="mapping_mode"  default="gmapping"/> <!--hector gmapping-->
+  <arg name="namespace" default="/"/>
+  <arg name="cmd_timeout" default="0.5"/>
+  <arg name="world_name" default="$(find ackermann_vehicle_gazebo)/worlds/Astar_Dij_test.world/Astar_Dij.world"/>
+
+  <!-- Vehicle pose -->
+  <arg name="x" default="0.0"/>
+  <arg name="y" default="0.0"/>
+  <arg name="z" default="0.0"/>
+  <arg name="roll" default="0.0"/>
+  <arg name="pitch" default="0.0"/>
+  <arg name="yaw" default="0.0"/>
+  <arg name="rviz" default="/ackermann_vehicle/ackermann_vehicle_gazebo/worlds/default.rviz"/>
+
+  <include file="$(find ackermann_vehicle_description)/launch/ackermann_vehicle.launch">
+    <arg name="namespace" value="$(arg namespace)"/>
+  </include>
+
+  <!-- depth_to laser. -->
+  <include file="$(find depthimage_to_laserscan)/launch/launchfile_sample.launch">
+  </include>
+
+  <!-- keyboard control. -->
+  <include file="$(find racecar)/launch/teleop.launch">
+  </include>
+
+  <group ns="$(arg namespace)">
+    <!-- Create the world. -->
+    <!-- <include file="$(find gazebo_ros)/launch/empty_world.launch">
+      <arg name="world_name" value="$(arg world_name)"/>
+    </include> -->
+
+    <!-- Spawn the vehicle. -->
+    <!-- <node name="spawn_vehicle" pkg="gazebo_ros" type="spawn_model"
+          args="-urdf -param robot_description -model ackermann_vehicle
+                -gazebo_namespace /$(arg namespace)/gazebo
+                -x $(arg x) -y $(arg y) -z $(arg z)
+                -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)"/>
+
+    <node name="controller_spawner" pkg="controller_manager" type="spawner"
+          args="$(find ackermann_vehicle_gazebo)/config/em_3905_joint_ctrlr_params.yaml"/>
+
+    <node name="ackermann_controller" pkg="ackermann_vehicle_gazebo"
+          type="ackermann_controller">
+      <param name="cmd_timeout" value="$(arg cmd_timeout)"/>
+      <rosparam file="$(find ackermann_vehicle_gazebo)/config/em_3905_ackermann_ctrlr_params.yaml" command="load"/>
+    </node> -->
+
+    <!-- <node name="connect_cmd" pkg="ackermann_vehicle_navigation" type="cmd_vel_to_ackermann_drive.py" output="screen">
+    </node> -->
+
+    <param name="rviz" value="$(arg rviz)"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rviz)" respawn="false" output="screen"/>
+  
+  </group>
+  <!--amcl-->
+  <include file="$(find ackermann_vehicle_gazebo)/launch/include/amcl.launch" />
+
+  <!-- use map_server -->
+  <arg name="map_file" default="$(find ackermann_vehicle_gazebo)/map/white.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/>
+
+  <!-- <node name="odom" pkg="ackermann_vehicle_gazebo" type="odom_pub" output="screen"/> -->
+  <node pkg="tf" type="static_transform_publisher" name="base_to_link" args="0 0 0.05 0 0 0 base_footprint base_link 100" />
+  <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args="0 0 0 0 0 0 map odom 100" />
+  
+  <!-- use slam -->
+  <!-- <group if="$(eval mapping_mode == 'hector')">
+    <node name="odom" pkg="ackermann_vehicle_gazebo" type="odom_pub" output="screen"/>
+    <node pkg="tf" type="static_transform_publisher" name="base_to_link" args="0 0 0.05 0 0 0 base_footprint base_link 100" />
+    <include file="$(find ackermann_vehicle_gazebo)/launch/algorithm_hector.launch" /> 
+  </group> -->
+
+  <!--same name problem-->
+  <!-- <group if="$(eval mapping_mode == 'gmapping')">
+    <node pkg="tf" type="static_transform_publisher" name="base_to_link" args="0 0 0.05 0 0 0 base_footprint base_link 100" />
+    <node name="odom" pkg="ackermann_vehicle_gazebo" type="odom_pub" output="screen"/>
+    <include file="$(find ackermann_vehicle_gazebo)/launch/algorithm_gmapping.launch" /> 
+  </group> -->
+
+
+  <!-- <node name="costmap_node" pkg="costmap_2d" type="costmap_2d_node" clear_params="true">
+    <rosparam file="$(find ackermann_vehicle_gazebo)/yaml/local_costmap_params_costmap2D.yaml" command="load"  ns="costmap"/>
+    <rosparam file="$(find ackermann_vehicle_gazebo)/yaml/costmap_common_params.yaml" command="load" ns="costmap"/>
+  </node> -->
+
+  <!-- <node pkg="teb_local_planner" type="test_optim_node" name="test_optim_node" output="screen" >
+    <rosparam file="$(find ackermann_vehicle_gazebo)/yaml/teb_local.yaml" command="load"  ns="TebContainer"/>
+  </node> -->
+
+
+  <include file="$(find ackermann_vehicle_gazebo)/launch/teb_local_planner_refer.launch" />
+
+  <!-- <node name="pub_goal" pkg="ackermann_vehicle_gazebo" type="publish_goal.py" output="screen">
+    </node> -->
+
+  <!-- <node name='send_mark' pkg="turn_on_wheeltec_robot" type="send_mark.py">
+  </node> -->
+
+  <!-- <node name="planner" pkg="ackermann_vehicle_gazebo" type="planner_test"/> -->
+
+</launch>
