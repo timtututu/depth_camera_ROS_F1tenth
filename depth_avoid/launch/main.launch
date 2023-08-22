@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!-- test test test  test-->
+
+
+<launch>
+  <!-- use map_server -->
+  <arg name="map_file" default="$(find ackermann_vehicle_gazebo)/map/white.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/>
+
+  <!-- transform -->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="base_to_link" args="0 0 0.05 0 0 0 base_footprint base_link 100" />
+  <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args="0 0 0 0 0 0 map odom 100" /> -->
+
+  <!-- controller -->
+  <include file="$(find racecar)/launch/teleop.launch">
+  </include>
+  
+  <!-- depth_to laser. -->
+  <include file="$(find depthimage_to_laserscan)/launch/launchfile_sample.launch">
+  </include>
+  <include file="$(find ackermann_vehicle_gazebo)/launch/amcl.launch" />
+
+
+  
+</launch>
